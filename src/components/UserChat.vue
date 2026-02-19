@@ -3,9 +3,11 @@
 import {onMounted, reactive, ref} from "vue";
 import Header from "./chats/Header.vue";
 import Message from "./chats/Message.vue";
+import StartChat from "./chats/StartChat.vue";
 
 const openChatModal = ref(false);
 const text = ref('');
+const chatExist = ref(true);
 
 const messages = ref([{
     id: 1,
@@ -32,6 +34,8 @@ const messages = ref([{
     text: 'این یک جواب تستی است...',
     time: '11:10 Am'
 }]);
+
+// const messages = ref([]);
 
 function sendMessage() {
 
@@ -65,7 +69,7 @@ onMounted(() => {
 <template>
   <div>
     <!--  modal button  -->
-    <div class="fixed bottom-4 right-4">
+    <div class="fixed bottom-4 right-4" v-show="!openChatModal">
       <button class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 size-14 rounded-full shadow-lg" @click="openChatModal = !openChatModal">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
           <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
@@ -74,13 +78,20 @@ onMounted(() => {
     </div>
 
     <!--  Chat Layout  -->
-    <section class="bg-gray-100 w-96 h-[50rem] flex flex-col" v-show="openChatModal">
+    <section class="bg-gray-100 w-96 h-[50rem] flex flex-col animate__animated animate__fadeInUp" v-show="openChatModal">
       <!-- Chat Header -->
-      <Header />
+      <Header  @closeChatModal="openChatModal = false"/>
 
       <div class="flex-1 overflow-y-auto p-4 chat-container">
         <!-- Chat Messages -->
-        <Message v-for="message in messages" :key="message.id" :message="message"/>
+        <section v-if="chatExist">
+          <Message v-for="message in messages" :key="message.id" :message="message"/>
+        </section>
+
+        <!-- Start Chat -->
+        <section v-else>
+          <StartChat />
+        </section>
       </div>
 
       <!-- Chat Input -->
