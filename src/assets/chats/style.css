@@ -1,0 +1,32 @@
+.logo {
+    height: 6em;
+    padding: 1.5em;
+    will-change: filter;
+    transition: filter 300ms;
+}
+.logo:hover {
+    filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.vue:hover {
+    filter: drop-shadow(0 0 2em #42b883aa);
+}
+
+/* chat template style */
+.message-time {
+    font-size: 0.7rem;
+    margin-top: 0.3rem;
+}
+
+.typing-indicator span {
+    animation: blink 1.5s infinite;
+    margin-right: 2px;
+}
+
+@keyframes blink {
+    0% { opacity: 0.2; }
+    20% { opacity: 1; }
+    100% { opacity: 0.2; }
+}
+
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
