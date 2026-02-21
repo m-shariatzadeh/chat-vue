@@ -10,9 +10,9 @@ const oldText = ref('');
 const text = ref('');
 const chatExist = ref(true);
 const editMode = ref(false);
-const editableMessageId = ref();
-
-const messages = reactive([{
+const messageId = ref(Number); // used for edit and reply
+const messages = reactive([
+    {
     id: 1,
     user: 'مصطفی',
     user_type: 'user',
@@ -37,8 +37,6 @@ const messages = reactive([{
     text: 'این یک جواب تستی استاین یک',
     time: '11:10 Am'
 }]);
-
-// const messages = reactive([]);
 
 function sendMessage() {
 
@@ -67,24 +65,16 @@ if (text.value.toString().trim() === ''){
   text.value = ''
 }
 
-function edit(messageId) {
+function enableEditMode(msgId) {
   editMode.value = true;
-  editableMessageId.value = messageId;
-  const messageText = messages.find(message => message.id === messageId).text;
+  messageId.value = msgId;
+  const messageText = messages.find(message => message.id === msgId).text;
   text.value = messageText;
 
+  // old text limit to show
   oldText.value = messageText.length > 20
       ? messageText.slice(0, 20) + '...'
       : messageText;
-}
-
-function updateMessage() {
-  if (text.value.toString().trim() === ''){
-    return;
-  }
-
-  messages.find(message => message.id === editableMessageId.value).text = text.value;
-  disableEditMode();
 }
 
 function disableEditMode() {
@@ -93,8 +83,17 @@ function disableEditMode() {
   oldText.value = '';
 }
 
+function updateMessage() {
+  if (text.value.toString().trim() === ''){
+    return;
+  }
+
+  messages.find(message => message.id === messageId.value).text = text.value;
+  disableEditMode();
+}
+
 function scrollToMessage() {
-  const element = document.getElementById(`message_${editableMessageId.value}`);
+  const element = document.getElementById(`message_${messageId.value}`);
   element.scrollIntoView({ behavior: "smooth" });
   element.classList.add('bg-lime-100')
   setTimeout(() => {
@@ -102,8 +101,12 @@ function scrollToMessage() {
   }, 1000)
 }
 
+function getMessages() {
+  // call api get messages
+}
+
 onMounted(() => {
-  console.log('this is test')
+  getMessages()
 })
 
 </script>
@@ -125,7 +128,7 @@ onMounted(() => {
       <div class="flex-1 overflow-y-auto p-4 chat-container overflow-x-hidden">
         <!-- Chat Messages -->
         <section v-if="chatExist">
-          <Message v-for="message in messages" :key="message.id" :message="message" @edit="edit"/>
+          <Message v-for="message in messages" :key="message.id" :message="message" @edit="enableEditMode"/>
         </section>
 
         <!-- Start Chat -->
