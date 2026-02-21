@@ -78,6 +78,13 @@ function edit(messageId) {
       : messageText;
 }
 
+function updateMessage() {
+  // console.log(editableMessageId);
+
+  messages.find(message => message.id === editableMessageId.value).text = text.value;
+  disableEditMode();
+}
+
 function disableEditMode() {
   editMode.value = false;
   text.value = '';
@@ -140,7 +147,7 @@ onMounted(() => {
           </button>
           <input @keyup.enter="sendMessage" type="text" v-model="text" placeholder="Type your message..." class="flex-1 p-2 border rounded-full focus:outline-none focus:border-green-500">
           <div v-if="editMode" class="flex">
-            <button @click="" class="p-1 text-white bg-green-600 rounded-full size-11 hover:bg-green-700 transition">
+            <button @click="updateMessage" class="p-1 text-white bg-green-600 rounded-full size-11 hover:bg-green-700 transition">
               <i class="fa-solid fa-check"></i>
             </button>
           </div>
