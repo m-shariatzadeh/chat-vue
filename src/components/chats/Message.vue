@@ -1,16 +1,48 @@
 <script setup>
 
+import {useChatStore} from "../../stores/chat.js";
+import {storeToRefs} from "pinia";
+import {reactive, watch} from "vue";
+
 const props = defineProps({
-  message: Object|Array
+  message: Object|Array,
+  doUpdate: Boolean,
 })
+
+const chat = useChatStore();
+const { text, oldText, editMode, messageId, doUpdate} = storeToRefs(chat);
+const disableEditMode = chat.disableEditMode;
+const messages = reactive(chat.messages)
 
 function destroy() {
   console.log(props.message.id)
 }
 
-function edit(){
+function enableEditMode() {
+  editMode.value = true;
+  messageId.value = props.message.id;
+  const messageText = messages.find(message => message.id === props.message.id).text;
+  text.value = messageText;
 
+  // old text limit to show
+  oldText.value = messageText.length > 20
+      ? messageText.slice(0, 20) + '...'
+      : messageText;
 }
+
+function updateMessage() {
+  if (text.value.toString().trim() === ''){
+    return;
+  }
+
+  messages.find(message => message.id === messageId.value).text = text.value;
+  disableEditMode();
+  doUpdate.value = false;
+}
+
+watch(doUpdate, () => {
+  updateMessage();
+});
 
 function reply(){
   console.log(props.message.id)
@@ -58,7 +90,7 @@ function reply(){
 
           <el-menu anchor="bottom end" popover class="m-0 w-56 origin-top-right rounded-md bg-white p-0 shadow-lg outline outline-1 outline-black/5 transition [--anchor-gap:theme(spacing.2)] [transition-behavior:allow-discrete] data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in w-fit">
             <div class="py-1">
-              <button @click="$emit('edit',message.id)" class="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-none">
+              <button @click="enableEditMode" class="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-none">
                 ویرایش
                 <i class="fa-solid fa-pen text-xs"></i>
               </button>

@@ -4,39 +4,16 @@ import {onMounted, reactive, ref} from "vue";
 import Header from "./chats/Header.vue";
 import Message from "./chats/Message.vue";
 import StartChat from "./chats/StartChat.vue";
+import {useChatStore} from "../stores/chat.js";
+import {storeToRefs} from "pinia";
 
 const openChatModal = ref(false);
-const oldText = ref('');
-const text = ref('');
 const chatExist = ref(true);
-const editMode = ref(false);
-const messageId = ref(Number); // used for edit and reply
-const messages = reactive([
-    {
-    id: 1,
-    user: 'مصطفی',
-    user_type: 'user',
-    text: 'سلام وقت بخیر',
-    time: '10:20 Am'
-  },{
-    id: 2,
-    user: 'پشتیبانی',
-    user_type: 'support',
-    text: 'سلام بفرمایید',
-    time: '10:30 Am'
-  },{
-    id: 3,
-    user: 'مصطفی',
-    user_type: 'user',
-    text: 'این یک جواب تستی استاین یک جواب تستی استاین یک جواب تستی استاین یک جواب تستی استاین یک جواب تستی استاین یک جواب تستی استاین یک جواب تستی استاین یک جواب تستی استاین یک جواب تستی است',
-    time: '10:45 Am'
-  },{
-    id: 4,
-    user: 'پشتیبانی',
-    user_type: 'support',
-    text: 'این یک جواب تستی استاین یک',
-    time: '11:10 Am'
-}]);
+const chat = useChatStore();
+const { text, oldText, editMode, messageId, doUpdate } = storeToRefs(chat);
+const disableEditMode = chat.disableEditMode;
+const messages = reactive(chat.messages)
+
 
 function sendMessage() {
 
@@ -63,33 +40,6 @@ if (text.value.toString().trim() === ''){
 
   messages.push(message.value);
   text.value = ''
-}
-
-function enableEditMode(msgId) {
-  editMode.value = true;
-  messageId.value = msgId;
-  const messageText = messages.find(message => message.id === msgId).text;
-  text.value = messageText;
-
-  // old text limit to show
-  oldText.value = messageText.length > 20
-      ? messageText.slice(0, 20) + '...'
-      : messageText;
-}
-
-function disableEditMode() {
-  editMode.value = false;
-  text.value = '';
-  oldText.value = '';
-}
-
-function updateMessage() {
-  if (text.value.toString().trim() === ''){
-    return;
-  }
-
-  messages.find(message => message.id === messageId.value).text = text.value;
-  disableEditMode();
 }
 
 function scrollToMessage() {
@@ -128,7 +78,7 @@ onMounted(() => {
       <div class="flex-1 overflow-y-auto p-4 chat-container overflow-x-hidden">
         <!-- Chat Messages -->
         <section v-if="chatExist">
-          <Message v-for="message in messages" :key="message.id" :message="message" @edit="enableEditMode"/>
+          <Message v-for="message in messages" :key="message.id" :message="message" />
         </section>
 
         <!-- Start Chat -->
@@ -152,7 +102,7 @@ onMounted(() => {
           </button>
           <input @keyup.enter="sendMessage" type="text" v-model="text" placeholder="Type your message..." class="flex-1 p-2 border rounded-full focus:outline-none focus:border-green-500">
           <div v-if="editMode" class="flex">
-            <button @click="updateMessage" class="p-1 text-white bg-green-600 rounded-full size-11 hover:bg-green-700 transition">
+            <button @click="doUpdate = true" class="p-1 text-white bg-green-600 rounded-full size-11 hover:bg-green-700 transition">
               <i class="fa-solid fa-check"></i>
             </button>
           </div>
