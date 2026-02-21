@@ -1,3 +1,11 @@
+<script setup>
+// import {useCounterStore} from "../../stores/counter.js";
+//
+// const counter = useCounterStore();
+// counter.increment()
+// console.log(counter.count);
+</script>
+
 <template>
   <div class="bg-green-600 text-white p-4  shadow-lg">
     <div class="max-w-4xl mx-auto flex items-center justify-between">

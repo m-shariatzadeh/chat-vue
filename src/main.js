@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from "./router";
 import { api } from "./api.js";
@@ -10,6 +11,7 @@ import '@tailwindplus/elements'
 
 createApp(App)
     .use(router)
+    .use(createPinia())
     .mount('#app')
 
 window.api = api;
