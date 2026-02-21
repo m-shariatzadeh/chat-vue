@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from "./router";
+import { api } from "./api.js";
 
 import "./assets/chats/fontawesome.js";
 import './style.css'
@@ -10,3 +11,5 @@ import '@tailwindplus/elements'
 createApp(App)
     .use(router)
     .mount('#app')
+
+window.api = api;
