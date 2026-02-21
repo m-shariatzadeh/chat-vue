@@ -79,7 +79,9 @@ function edit(messageId) {
 }
 
 function updateMessage() {
-  // console.log(editableMessageId);
+  if (text.value.toString().trim() === ''){
+    return;
+  }
 
   messages.find(message => message.id === editableMessageId.value).text = text.value;
   disableEditMode();
