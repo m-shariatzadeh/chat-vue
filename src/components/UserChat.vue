@@ -6,8 +6,11 @@ import Message from "./chats/Message.vue";
 import StartChat from "./chats/StartChat.vue";
 
 const openChatModal = ref(false);
+const oldText = ref('');
 const text = ref('');
 const chatExist = ref(true);
+const editMode = ref(false);
+const editableMessageId = ref();
 
 const messages = reactive([{
     id: 1,
@@ -25,13 +28,13 @@ const messages = reactive([{
     id: 3,
     user: 'مصطفی',
     user_type: 'user',
-    text: 'این یک پیام تستی است',
+    text: 'این یک جواب تستی استاین یک جواب تستی استاین یک جواب تستی استاین یک جواب تستی استاین یک جواب تستی استاین یک جواب تستی استاین یک جواب تستی استاین یک جواب تستی استاین یک جواب تستی است',
     time: '10:45 Am'
   },{
     id: 4,
     user: 'پشتیبانی',
     user_type: 'support',
-    text: 'این یک جواب تستی است...',
+    text: 'این یک جواب تستی استاین یک',
     time: '11:10 Am'
 }]);
 
@@ -64,6 +67,32 @@ if (text.value.toString().trim() === ''){
   text.value = ''
 }
 
+function edit(messageId) {
+  editMode.value = true;
+  editableMessageId.value = messageId;
+  const messageText = messages.find(message => message.id === messageId).text;
+  text.value = messageText;
+
+  oldText.value = messageText.length > 20
+      ? messageText.slice(0, 20) + '...'
+      : messageText;
+}
+
+function disableEditMode() {
+  editMode.value = false;
+  text.value = '';
+  oldText.value = '';
+}
+
+function scrollToMessage() {
+  const element = document.getElementById(`message_${editableMessageId.value}`);
+  element.scrollIntoView({ behavior: "smooth" });
+  element.classList.add('bg-lime-100')
+  setTimeout(() => {
+    element.classList.remove('bg-lime-100')
+  }, 1000)
+}
+
 onMounted(() => {
   console.log('this is test')
 })
@@ -84,10 +113,10 @@ onMounted(() => {
       <!-- Chat Header -->
       <Header @closeChatModal="openChatModal = false"/>
 
-      <div class="flex-1 overflow-y-auto p-4 chat-container" >
+      <div class="flex-1 overflow-y-auto p-4 chat-container overflow-x-hidden">
         <!-- Chat Messages -->
         <section v-if="chatExist">
-          <Message v-for="message in messages" :key="message.id" :message="message"/>
+          <Message v-for="message in messages" :key="message.id" :message="message" @edit="edit"/>
         </section>
 
         <!-- Start Chat -->
@@ -96,6 +125,13 @@ onMounted(() => {
         </section>
       </div>
 
+      <!-- Editable Text -->
+      <div class="bg-slate-200 py-2" v-if="editMode">
+        <button @click="disableEditMode" class="float-right mr-3">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div v-text="oldText" class="cursor-pointer" @click="scrollToMessage"></div>
+      </div>
       <!-- Chat Input -->
       <div class="bg-white border-t p-4" v-if="chatExist">
         <div class="max-w-4xl mx-auto flex items-center space-x-4">
@@ -103,9 +139,16 @@ onMounted(() => {
             <i class="fa-solid fa-paperclip"></i>
           </button>
           <input @keyup.enter="sendMessage" type="text" v-model="text" placeholder="Type your message..." class="flex-1 p-2 border rounded-full focus:outline-none focus:border-green-500">
-          <button @click="sendMessage" class="p-2 text-white bg-green-600 rounded-full size-11 hover:bg-green-700 transition">
-            <i class="fa-solid fa-paper-plane"></i>
-          </button>
+          <div v-if="editMode" class="flex">
+            <button @click="" class="p-1 text-white bg-green-600 rounded-full size-11 hover:bg-green-700 transition">
+              <i class="fa-solid fa-check"></i>
+            </button>
+          </div>
+          <div v-else>
+            <button @click="sendMessage" class="p-2 text-white bg-green-600 rounded-full size-11 hover:bg-green-700 transition">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </div>
         </div>
       </div>
     </section>

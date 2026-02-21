@@ -1,11 +1,20 @@
 <script setup>
 
-import MessageAction from "./MessageAction.vue";
-
 const props = defineProps({
-  message: Array|Object,
+  message: Object|Array
 })
 
+function destroy() {
+  console.log(props.message.id)
+}
+
+function edit(){
+
+}
+
+function reply(){
+  console.log(props.message.id)
+}
 </script>
 <template>
     <div class="max-w-4xl mx-auto space-y-4">
@@ -24,13 +33,46 @@ const props = defineProps({
         </div>
 
         <!--    Action Button    -->
-        <MessageAction :messageId="message.id"/>
+        <el-dropdown class="inline-block">
+          <button class="inline-flex w-full justify-center gap-x-1.5 rounded-md text-sm font-semibold text-gray-900 bg-none p-0">
+            <i class="fa-solid fa-ellipsis-vertical"></i>
+          </button>
+          <el-menu anchor="bottom end" popover class="m-0 w-56 origin-top-right rounded-md bg-white p-0 shadow-lg outline outline-1 outline-black/5 transition [--anchor-gap:theme(spacing.2)] [transition-behavior:allow-discrete] data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in w-fit">
+            <div class="py-1">
+              <a @click="reply" class="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-none" >
+                پاسخ
+                <i class="fa-solid fa-reply text-xs"></i>
+              </a>
+            </div>
+          </el-menu>
+        </el-dropdown>
       </div>
 
       <!-- Sender Message -->
-      <div class="flex items-start justify-end space-x-2 animate__animated animate__fadeInRight" v-if="message.user_type === 'user'">
+      <div class="flex items-start justify-end space-x-2 animate__animated animate__fadeInRight" v-if="message.user_type === 'user'" :id="`message_${message.id}`">
         <!--    Action Button    -->
-        <MessageAction :messageId="message.id"/>
+        <el-dropdown class="inline-block">
+          <button class="inline-flex w-full justify-center gap-x-1.5 rounded-md text-sm font-semibold text-gray-900 bg-none p-0">
+            <i class="fa-solid fa-ellipsis-vertical"></i>
+          </button>
+
+          <el-menu anchor="bottom end" popover class="m-0 w-56 origin-top-right rounded-md bg-white p-0 shadow-lg outline outline-1 outline-black/5 transition [--anchor-gap:theme(spacing.2)] [transition-behavior:allow-discrete] data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in w-fit">
+            <div class="py-1">
+              <button @click="$emit('edit',message.id)" class="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-none">
+                ویرایش
+                <i class="fa-solid fa-pen text-xs"></i>
+              </button>
+              <a @click="reply" class="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-none" >
+                پاسخ
+                <i class="fa-solid fa-reply text-xs"></i>
+              </a>
+              <a @click="destroy" class="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-none" >
+                حذف
+                <i class="fa-solid fa-trash text-xs"></i>
+              </a>
+            </div>
+          </el-menu>
+        </el-dropdown>
 
         <div class="flex flex-col items-end">
           <div class="bg-green-600 text-white rounded-lg rounded-tr-none p-3 shadow-md max-w-md">
