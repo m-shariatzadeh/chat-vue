@@ -10,9 +10,8 @@ const props = defineProps({
 })
 
 const chat = useChatStore();
-const { text, oldText, editMode, messageId, doUpdate} = storeToRefs(chat);
+const { text, oldText, editMode, messageId, doUpdate, messages} = storeToRefs(chat);
 const disableEditMode = chat.disableEditMode;
-const messages = reactive(chat.messages)
 
 function destroy() {
   console.log(props.message.id)
@@ -51,12 +50,12 @@ function reply(){
 <template>
     <div class="max-w-4xl mx-auto space-y-4">
       <!-- Receiver Message -->
-      <div class="flex items-start space-x-2 animate__animated animate__fadeInLeft" v-if="message.user_type === 'support'">
+      <div class="flex items-start space-x-2 animate__animated animate__fadeInLeft" v-if="message.sender_type === 'agent'">
         <img src="https://placehold.co/600x400/000000/fff" alt="Abhiraj" class="w-8 h-8 rounded-full object-cover">
         <div>
           <div class="bg-white rounded-lg rounded-tl-none p-3 shadow-md max-w-md">
             <span class="text-slate-400 flex justify-end text-sm">{{ message.user }}</span>
-            <p>{{ message.text }}</p>
+            <p>{{ message.body }}</p>
           </div>
           <div class="text-gray-500 text-xs message-time flex justify-end pt-2 pb-4">
             <span>{{ message.time }}</span>
@@ -81,7 +80,7 @@ function reply(){
       </div>
 
       <!-- Sender Message -->
-      <div class="flex items-start justify-end space-x-2 animate__animated animate__fadeInRight" v-if="message.user_type === 'user'" :id="`message_${message.id}`">
+      <div class="flex items-start justify-end space-x-2 animate__animated animate__fadeInRight" v-if="message.sender_type === 'visitor'" :id="`message_${message.id}`">
         <!--    Action Button    -->
         <el-dropdown class="inline-block">
           <button class="inline-flex w-full justify-center gap-x-1.5 rounded-md text-sm font-semibold text-gray-900 bg-none p-0">
@@ -109,7 +108,7 @@ function reply(){
         <div class="flex flex-col items-end">
           <div class="bg-green-600 text-white rounded-lg rounded-tr-none p-3 shadow-md max-w-md">
             <span class="text-slate-200 flex justify-end text-sm">{{ message.user }}</span>
-            <p>{{ message.text }}</p>
+            <p>{{ message.body }}</p>
           </div>
           <div class="text-gray-500 text-xs message-time flex justify-end pt-2 pb-4">
             <span>{{ message.time }}</span>

@@ -10,10 +10,8 @@ import {storeToRefs} from "pinia";
 const openChatModal = ref(false);
 const chatExist = ref(true);
 const chat = useChatStore();
-const { text, oldText, editMode, messageId, doUpdate } = storeToRefs(chat);
+const { text, oldText, editMode, messageId, doUpdate, messages} = storeToRefs(chat);
 const disableEditMode = chat.disableEditMode;
-const messages = reactive(chat.messages)
-
 
 function sendMessage() {
 
@@ -51,12 +49,13 @@ function scrollToMessage() {
   }, 1000)
 }
 
-function getMessages() {
-  // call api get messages
-}
-
-onMounted(() => {
-  getMessages()
+onMounted(async () => {
+  try {
+    const res = await api.get('api/conversations/1');
+    messages.value = res.data.messages;
+  } catch (error) {
+    console.error(error);
+  }
 })
 
 </script>
