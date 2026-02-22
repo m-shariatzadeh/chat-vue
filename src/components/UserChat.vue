@@ -51,8 +51,9 @@ function scrollToMessage() {
 
 onMounted(async () => {
   try {
-    const res = await api.get('api/conversations/1');
-    messages.value = res.data.messages;
+    const res = await api.get('api/conversations/1/messages');
+    messages.value = res.data;
+    console.log(res.data)
   } catch (error) {
     console.error(error);
   }
