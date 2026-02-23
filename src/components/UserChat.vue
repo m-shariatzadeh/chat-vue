@@ -16,7 +16,7 @@ const chat = useChatStore();
 const { text, oldText, editMode, messageId, doUpdate, messages} = storeToRefs(chat);
 const disableEditMode = chat.disableEditMode;
 // localStorage.clear()
-console.log(user.session_token)
+// console.log(user.session_token)
 
 async function sendMessage() {
   if (text.value.toString().trim() === ''){
@@ -29,13 +29,23 @@ async function sendMessage() {
       sender_id: 3,
       body: text.value
     }
-    const res = await api.post('/api/conversations/1/messages',data);
+    const res = await api.post(`/api/conversations/${user.conversation_id}/messages`,data);
     messages.value.push(res.data);
     messageId.value = res.data.id;
     text.value = ''
     loading.value = false;
     await nextTick();
     scrollToMessage();
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function getMessages(){
+  try {
+    const res = await api.get(`api/conversations/${user.conversation_id}/messages`);
+    messages.value = res.data;
+    // console.log(res.data)
   } catch (error) {
     console.error(error);
   }
@@ -50,8 +60,10 @@ function scrollToMessage(e, elementId = null) {
       element.classList.remove('bg-lime-100')
     }, 1000)
   }else{
+    if (messageId.value === undefined) {
+      return;
+    }
     const element = document.getElementById(`message_${messageId.value}`);
-
     // remove animation
     element.classList.remove('animate__animated');
     element.classList.remove('animate__fadeInRight');
@@ -66,7 +78,7 @@ function scrollToMessage(e, elementId = null) {
 
 onMounted( async () => {
   await user.create();
-  await chat.getMessages();
+  await getMessages();
 
   const last_message = messages.value[messages.value.length - 1];
   messageId.value = last_message.id;

@@ -26,6 +26,7 @@ export const useUserStore = defineStore('user',() => {
                 session_token.value = res.data.session_token;
                 visitor_id.value = res.data.visitor_id;
 
+                // create conversation
                 const data2 = {
                     "visitor_id": visitor_id.value,
                     "session_id": session_id.value,
