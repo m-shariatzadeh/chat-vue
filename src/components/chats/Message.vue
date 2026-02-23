@@ -13,6 +13,8 @@ const chat = useChatStore();
 const { text, oldText, editMode, messageId, doUpdate, messages} = storeToRefs(chat);
 const disableEditMode = chat.disableEditMode;
 
+// console.log(props.message.body)
+
 function destroy() {
   console.log(props.message.id)
 }
@@ -20,7 +22,8 @@ function destroy() {
 function enableEditMode() {
   editMode.value = true;
   messageId.value = props.message.id;
-  const messageText = messages.find(message => message.id === props.message.id).text;
+  const messageText = messages.value.find(message => message.id === props.message.id).body;
+  // console.log(messageText);
   text.value = messageText;
 
   // old text limit to show
@@ -34,7 +37,7 @@ function updateMessage() {
     return;
   }
 
-  messages.find(message => message.id === messageId.value).text = text.value;
+  messages.value.find(message => message.id === messageId.value).text = text.value;
   disableEditMode();
   doUpdate.value = false;
 }

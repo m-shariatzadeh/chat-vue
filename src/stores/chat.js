@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import {computed, reactive, ref} from "vue";
+import { ref } from "vue";
 
 export const useChatStore = defineStore('chat',() => {
     // using Setup Stores
