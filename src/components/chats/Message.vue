@@ -13,8 +13,6 @@ const chat = useChatStore();
 const { text, oldText, editMode, messageId, doUpdate, messages} = storeToRefs(chat);
 const disableEditMode = chat.disableEditMode;
 
-// console.log(props.message.body)
-
 function destroy() {
   console.log(props.message.id)
 }

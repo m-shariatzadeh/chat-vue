@@ -9,9 +9,9 @@ import { useChatStore } from "../stores/chat.js";
 import { useUserStore } from "../stores/user.js";
 
 const user = useUserStore();
+const loading = ref(false);
 const openChatModal = ref(false);
 const chatExist = ref(true);
-const loading = ref(false);
 const chat = useChatStore();
 const { text, oldText, editMode, messageId, doUpdate, messages} = storeToRefs(chat);
 const disableEditMode = chat.disableEditMode;
@@ -46,34 +46,9 @@ function scrollToMessage() {
   }, 1000)
 }
 
-async function getUser(){
-  try {
-    if (user.session_token === undefined){
-      // create visitor session
-      const data = { name: 'Guest' }
-      const res = await api.post('api/visitor/session', data);
-      user.session_id = res.data.session_id;
-      user.session_token = res.data.session_token;
-      user.visitor_id = res.data.visitor_id;
-    }
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-async function getMessages(){
-  try {
-    const res = await api.get('api/conversations/1/messages');
-    messages.value = res.data;
-    // console.log(res.data)
-  } catch (error) {
-    console.error(error);
-  }
-}
-
 onMounted( () => {
-  getUser();
-  getMessages();
+  user.create();
+  chat.getMessages();
 })
 
 </script>
