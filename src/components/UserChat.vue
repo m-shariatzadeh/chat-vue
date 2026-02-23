@@ -1,6 +1,6 @@
 <script setup>
 
-import { onMounted, ref } from "vue";
+import {nextTick, onMounted, ref, watch} from "vue";
 import Header from "./chats/Header.vue";
 import Message from "./chats/Message.vue";
 import StartChat from "./chats/StartChat.vue";
@@ -29,26 +29,49 @@ async function sendMessage() {
     }
     const res = await api.post('/api/conversations/1/messages',data);
     messages.value.push(res.data);
+    messageId.value = res.data.id;
     text.value = ''
     loading.value = false;
-    // console.log(res.data)
+    await nextTick();
+    scrollToMessage();
   } catch (error) {
     console.error(error);
   }
 }
 
-function scrollToMessage() {
-  const element = document.getElementById(`message_${messageId.value}`);
-  element.scrollIntoView({ behavior: "smooth" });
-  element.classList.add('bg-lime-100')
-  setTimeout(() => {
-    element.classList.remove('bg-lime-100')
-  }, 1000)
+function scrollToMessage(e, elementId = null) {
+  if (elementId != null){
+    const element = document.getElementById(elementId);
+    element.scrollIntoView({ behavior: "smooth" });
+    element.classList.add('bg-lime-100')
+    setTimeout(() => {
+      element.classList.remove('bg-lime-100')
+    }, 1000)
+  }else{
+    const element = document.getElementById(`message_${messageId.value}`);
+
+    // remove animation
+    element.classList.remove('animate__animated');
+    element.classList.remove('animate__fadeInRight');
+
+    element.scrollIntoView({ behavior: "smooth" });
+    element.classList.add('bg-lime-100')
+    setTimeout(() => {
+      element.classList.remove('bg-lime-100')
+    }, 1000)
+  }
 }
 
-onMounted( () => {
-  user.create();
-  chat.getMessages();
+onMounted( async () => {
+  await user.create();
+  await chat.getMessages();
+
+  const last_message = messages.value[messages.value.length - 1];
+  messageId.value = last_message.id;
+})
+watch(openChatModal,async () => {
+  await nextTick();
+  scrollToMessage('endOfMessages');
 })
 
 </script>
@@ -57,13 +80,13 @@ onMounted( () => {
   <div>
     <!--  modal button  -->
     <div class="fixed bottom-4 right-4" v-show="!openChatModal">
-      <button class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 size-14 rounded-full shadow-lg" @click="openChatModal = !openChatModal">
+      <button class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 size-14 rounded-full shadow-lg" @click="openChatModal = !openChatModal;">
         <i class="fa-regular fa-comment-dots"></i>
       </button>
     </div>
 
     <!--  Chat Layout  -->
-    <section class="bg-gray-100 w-96 h-[50rem] flex flex-col animate__animated animate__fadeInUp" v-show="openChatModal">
+    <section class="bg-gray-100 w-96 h-[50rem] flex flex-col" v-show="openChatModal">
       <!-- Chat Header -->
       <Header @closeChatModal="openChatModal = false"/>
 
@@ -77,6 +100,8 @@ onMounted( () => {
         <section v-else>
           <StartChat @chatExist="chatExist = true" />
         </section>
+
+        <div id="endOfMessages"></div>
       </div>
 
       <!-- Editable Text -->

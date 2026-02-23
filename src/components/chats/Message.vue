@@ -2,7 +2,7 @@
 
 import {useChatStore} from "../../stores/chat.js";
 import {storeToRefs} from "pinia";
-import {reactive, watch} from "vue";
+import {onMounted, reactive, watch} from "vue";
 
 const props = defineProps({
   message: Object|Array,
@@ -51,7 +51,7 @@ function reply(){
 <template>
     <div class="max-w-4xl mx-auto space-y-4">
       <!-- Receiver Message -->
-      <div class="flex items-start space-x-2 animate__animated animate__fadeInLeft" v-if="message.sender_type === 'agent'">
+      <div class="flex items-start space-x-2 message_sec animate__animated animate__fadeInLeft" v-if="message.sender_type === 'agent'">
         <img src="https://placehold.co/600x400/000000/fff" alt="Abhiraj" class="w-8 h-8 rounded-full object-cover">
         <div>
           <div class="bg-white rounded-lg rounded-tl-none p-3 shadow-md max-w-md">
@@ -81,7 +81,7 @@ function reply(){
       </div>
 
       <!-- Sender Message -->
-      <div class="flex items-start justify-end space-x-2 animate__animated animate__fadeInRight" v-if="message.sender_type === 'visitor'" :id="`message_${message.id}`">
+      <div class="flex items-start justify-end space-x-2 message_sec animate__animated animate__fadeInRight" v-if="message.sender_type === 'visitor'" :id="`message_${message.id}`">
         <!--    Action Button    -->
         <el-dropdown class="inline-block">
           <button class="inline-flex w-full justify-center gap-x-1.5 rounded-md text-sm font-semibold text-gray-900 bg-none p-0">
