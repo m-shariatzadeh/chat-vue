@@ -51,7 +51,7 @@ function reply(){
 <template>
     <div class="max-w-4xl mx-auto space-y-4">
       <!-- Receiver Message -->
-      <div class="flex items-start space-x-2 message_sec animate__animated animate__fadeInLeft" v-if="message.sender_type === 'agent'">
+      <div class="flex items-start space-x-2 message_sec animate__animated animate__fadeInLeft" v-if="message.sender_type === 'agent'" :id="`message_${message.id}`">
         <img src="https://placehold.co/600x400/000000/fff" alt="Abhiraj" class="w-8 h-8 rounded-full object-cover">
         <div>
           <div class="bg-white rounded-lg rounded-tl-none p-3 shadow-md max-w-md">

@@ -8,6 +8,7 @@ export const useUserStore = defineStore('user',() => {
     const session_id = ref();
     const session_token = ref();
     const visitor_id = ref();
+    const conversation_id = ref();
 
     // ------------------------------------ //
     // getter
@@ -24,6 +25,14 @@ export const useUserStore = defineStore('user',() => {
                 session_id.value = res.data.session_id;
                 session_token.value = res.data.session_token;
                 visitor_id.value = res.data.visitor_id;
+
+                const data2 = {
+                    "visitor_id": visitor_id.value,
+                    "session_id": session_id.value,
+                    "subject": "Test Chat"
+                };
+                const res2 = await api.post('api/conversations', data);
+                conversation_id.value = res2.data.id;
             }
         } catch (error) {
             console.error(error);
@@ -34,6 +43,7 @@ export const useUserStore = defineStore('user',() => {
         session_id,
         session_token,
         visitor_id,
+        conversation_id,
         create
     }
 }, {

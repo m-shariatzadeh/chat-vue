@@ -1,5 +1,6 @@
-import { createApp } from 'vue'
+import {createApp, nextTick} from 'vue'
 import { createPinia } from 'pinia'
+import Pusher from 'pusher-js'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import App from './App.vue'
 import router from "./router";
@@ -9,8 +10,11 @@ import "./assets/chats/fontawesome.js";
 import './style.css'
 import 'animate.css'
 import '@tailwindplus/elements'
+import {useUserStore} from "./stores/user.js";
+import {useChatStore} from "./stores/chat.js";
 
 const pinia = createPinia().use(piniaPluginPersistedstate);
+
 
 createApp(App)
     .use(router)
@@ -18,3 +22,42 @@ createApp(App)
     .mount('#app')
 
 window.api = api;
+
+const user = useUserStore();
+const chat = useChatStore();
+
+// Pusher.logToConsole = true;
+const pusher = new Pusher("appkey", {
+    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
+    wsHost: import.meta.env.VITE_PUSHER_SOCKET_URL,
+    wsPort: import.meta.env.VITE_PUSHER_SOCKET_PORT,
+    forceTLS: false,
+    enabledTransports: ["ws"],
+    authEndpoint: import.meta.env.VITE_API_URL + "api/broadcasting/auth",
+    auth: {
+        headers: {
+            "X-Session-Token": user.session_token,
+            "Accept": "application/json",
+        },
+    },
+});
+const channel = pusher.subscribe(`private-conversation.${user.conversation_id}`);
+
+pusher.connection.bind("connected", () => {
+    console.log(pusher.connection.socket_id);
+});
+
+channel.bind("message.sent", (payload) => {
+    chat.messages.push(payload);
+    // console.log(payload)
+});
+
+
+pusher.connection.bind("error", (err) => {
+    console.log(err)
+});
+//
+// channel.bind("pusher:subscription_error", (e) => {
+//     console.log(e)
+// });
+

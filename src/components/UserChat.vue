@@ -15,6 +15,8 @@ const chatExist = ref(true);
 const chat = useChatStore();
 const { text, oldText, editMode, messageId, doUpdate, messages} = storeToRefs(chat);
 const disableEditMode = chat.disableEditMode;
+// localStorage.clear()
+console.log(user.session_token)
 
 async function sendMessage() {
   if (text.value.toString().trim() === ''){
@@ -69,6 +71,7 @@ onMounted( async () => {
   const last_message = messages.value[messages.value.length - 1];
   messageId.value = last_message.id;
 })
+
 watch(openChatModal,async () => {
   await nextTick();
   scrollToMessage('endOfMessages');
