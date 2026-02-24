@@ -16,7 +16,7 @@ const chat = useChatStore();
 const { text, oldText, editMode, messageId, doUpdate, messages} = storeToRefs(chat);
 const disableEditMode = chat.disableEditMode;
 // localStorage.clear()
-// console.log(user.session_token)
+// console.log(user.conversation_id)
 
 async function sendMessage() {
   if (text.value.toString().trim() === ''){
@@ -26,7 +26,7 @@ async function sendMessage() {
   loading.value = true;
   try {
     const data = {
-      sender_id: 3,
+      sender_id: user.visitor_id,
       body: text.value
     }
     const res = await api.post(`/api/conversations/${user.conversation_id}/messages`,data);
@@ -80,8 +80,10 @@ onMounted( async () => {
   await user.create();
   await getMessages();
 
-  const last_message = messages.value[messages.value.length - 1];
-  messageId.value = last_message.id;
+  if (messages.value.length > 0) {
+    const last_message = messages.value[messages.value.length - 1];
+    messageId.value = last_message.id;
+  }
 })
 
 watch(openChatModal,async () => {

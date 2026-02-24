@@ -26,38 +26,41 @@ window.api = api;
 const user = useUserStore();
 const chat = useChatStore();
 
-// Pusher.logToConsole = true;
-const pusher = new Pusher("appkey", {
-    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
-    wsHost: import.meta.env.VITE_PUSHER_SOCKET_URL,
-    wsPort: import.meta.env.VITE_PUSHER_SOCKET_PORT,
-    forceTLS: false,
-    enabledTransports: ["ws"],
-    authEndpoint: import.meta.env.VITE_API_URL + "api/broadcasting/auth",
-    auth: {
-        headers: {
-            "X-Session-Token": user.session_token,
-            "Accept": "application/json",
+if (user.session_token){
+    // Pusher.logToConsole = true;
+    const pusher = new Pusher("appkey", {
+        cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
+        wsHost: import.meta.env.VITE_PUSHER_SOCKET_URL,
+        wsPort: import.meta.env.VITE_PUSHER_SOCKET_PORT,
+        forceTLS: false,
+        enabledTransports: ["ws"],
+        authEndpoint: import.meta.env.VITE_API_URL + "api/broadcasting/auth",
+        auth: {
+            headers: {
+                "X-Session-Token": user.session_token,
+                "Accept": "application/json",
+            },
         },
-    },
-});
-const channel = pusher.subscribe(`private-conversation.${user.conversation_id}`);
+    });
+    const channel = pusher.subscribe(`private-conversation.${user.conversation_id}`);
 
-pusher.connection.bind("connected", () => {
-    console.log(pusher.connection.socket_id);
-});
+    pusher.connection.bind("connected", () => {
+        console.log(pusher.connection.socket_id);
+    });
 
-channel.bind("message.sent", (payload) => {
-    chat.messages.push(payload);
-    // console.log(payload)
-});
+    channel.bind("message.sent", (payload) => {
+        chat.messages.push(payload);
+        // console.log(payload)
+    });
 
 
-pusher.connection.bind("error", (err) => {
-    console.log(err)
-});
+    pusher.connection.bind("error", (err) => {
+        console.log(err)
+    });
 //
 // channel.bind("pusher:subscription_error", (e) => {
 //     console.log(e)
 // });
 
+
+}

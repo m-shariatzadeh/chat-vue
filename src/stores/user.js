@@ -32,7 +32,7 @@ export const useUserStore = defineStore('user',() => {
                     "session_id": session_id.value,
                     "subject": "Test Chat"
                 };
-                const res2 = await api.post('api/conversations', data);
+                const res2 = await api.post('api/conversations', data2);
                 conversation_id.value = res2.data.id;
             }
         } catch (error) {
