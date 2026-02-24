@@ -22,24 +22,13 @@ export const useUserStore = defineStore('user',() => {
                 // create visitor session
                 const data = { phone: '09399701760' }
                 const res = await api.post('api/visitor/session', data);
-                console.log(res.data)
                 session_id.value = res.data.session_id;
                 session_token.value = res.data.session_token;
                 visitor_id.value = res.data.visitor_id;
 
-                // api.defaults.headers.common['X-Session-Token'] = session_token.value;
-
-                // create conversation
-                const data2 = {
-                    // phone: '09399701760',
-                    visitor_id: visitor_id.value,
-                    session_id: session_id.value,
-                    subject: "Test Chat"
-                };
-
-
-                const res2 = await api.post('api/conversations', data2);
-                conversation_id.value = res2.data.id;
+                api.defaults.headers.common['X-Session-Token'] = session_token.value;
+            }else{
+                api.defaults.headers.common['X-Session-Token'] = session_token.value;
             }
         } catch (error) {
             console.error(error);

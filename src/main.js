@@ -11,7 +11,6 @@ import './style.css'
 import 'animate.css'
 import '@tailwindplus/elements'
 import {useUserStore} from "./stores/user.js";
-import {useChatStore} from "./stores/chat.js";
 
 const pinia = createPinia().use(piniaPluginPersistedstate);
 
@@ -24,7 +23,6 @@ createApp(App)
 window.api = api;
 
 const user = useUserStore();
-const chat = useChatStore();
 
 if (user.session_token){
     // Pusher.logToConsole = true;
@@ -47,13 +45,8 @@ if (user.session_token){
     });
 
     pusher.connection.bind("error", (err) => {
-        console.log(err)
+        // console.log(err)
     });
 
-    const channel = pusher.subscribe(`private-conversation.${user.conversation_id}`);
-
-    channel.bind("message.sent", (payload) => {
-        chat.messages.push(payload);
-        // console.log(payload)
-    });
+    window.pusher = pusher;
 }

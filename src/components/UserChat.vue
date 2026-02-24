@@ -11,7 +11,7 @@ import { useUserStore } from "../stores/user.js";
 const user = useUserStore();
 const loading = ref(false);
 const openChatModal = ref(false);
-const chatExist = ref(true);
+const chatExist = ref(false);
 const chat = useChatStore();
 const { text, oldText, editMode, messageId, doUpdate, messages} = storeToRefs(chat);
 const disableEditMode = chat.disableEditMode;
@@ -78,11 +78,23 @@ function scrollToMessage(e, elementId = null) {
 
 onMounted( async () => {
   await user.create();
-  await getMessages();
 
+  // get last message id
   if (messages.value.length > 0) {
     const last_message = messages.value[messages.value.length - 1];
     messageId.value = last_message.id;
+  }
+
+  // listen to send messages
+  if (user.conversation_id){
+    chatExist.value = true;
+    await getMessages();
+
+    const channel = pusher.subscribe(`private-conversation.${user.conversation_id}`);
+    channel.bind("message.sent", (payload) => {
+      chat.messages.push(payload);
+      console.log(payload)
+    });
   }
 })
 
