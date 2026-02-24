@@ -42,25 +42,18 @@ if (user.session_token){
             },
         },
     });
-    const channel = pusher.subscribe(`private-conversation.${user.conversation_id}`);
-
     pusher.connection.bind("connected", () => {
-        console.log(pusher.connection.socket_id);
+        // console.log(pusher.connection.socket_id);
     });
+
+    pusher.connection.bind("error", (err) => {
+        console.log(err)
+    });
+
+    const channel = pusher.subscribe(`private-conversation.${user.conversation_id}`);
 
     channel.bind("message.sent", (payload) => {
         chat.messages.push(payload);
         // console.log(payload)
     });
-
-
-    pusher.connection.bind("error", (err) => {
-        console.log(err)
-    });
-//
-// channel.bind("pusher:subscription_error", (e) => {
-//     console.log(e)
-// });
-
-
 }

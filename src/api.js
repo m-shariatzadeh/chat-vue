@@ -1,12 +1,11 @@
 import axios from 'axios';
-import { API_FULL_URL } from './config.js';
 
 // const getAuthToken = () => {
 //     return 'Bearer ' + localStorage.getItem('token');
 // };
 
 export const api = axios.create({
-    baseURL: API_FULL_URL,
+    baseURL: import.meta.env.VITE_API_URL,
     timeout: 0,
     responseType: 'json',
     responseEncoding: 'utf8',
