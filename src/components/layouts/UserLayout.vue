@@ -4,4 +4,4 @@
   </div>
 </template>
 
-<style src="/src/assets/chats/style.css"></style>
+<style src="/src/assets/chats/style.css" scoped></style>

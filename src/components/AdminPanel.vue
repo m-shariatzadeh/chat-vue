@@ -1,3 +1,5 @@
+<script setup>
+</script>
 <template>
   <div class="relative overflow-x-auto">
     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
@@ -64,3 +66,7 @@
     </table>
   </div>
 </template>
+
+<style scoped>
+@import "/src/assets/admin/style.css";
+</style>
