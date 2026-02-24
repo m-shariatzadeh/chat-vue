@@ -28,22 +28,22 @@ export const api = axios.create({
 // );
 
 // افزودن interceptor برای پاسخ‌ها
-api.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-        const { status } = error.response || {};
-
-        // اگر 401 خطای اعتبارسنجی (منقضی شدن توکن) بود
-        if (status === 401) {
-            const refresh_Token = localStorage.getItem('refreshToken');
-        } else if (error.response) {
-            // در صورتی که خطای دیگری بود
-            console.log(error.response);
-        }
-
-        return Promise.reject(error);
-    }
-);
+// api.interceptors.response.use(
+//     (response) => response,
+//     async (error) => {
+//         const { status } = error.response || {};
+//
+//         // اگر 401 خطای اعتبارسنجی (منقضی شدن توکن) بود
+//         if (status === 401) {
+//             const refresh_Token = localStorage.getItem('refreshToken');
+//         } else if (error.response) {
+//             // در صورتی که خطای دیگری بود
+//             console.log(error.response);
+//         }
+//
+//         return Promise.reject(error);
+//     }
+// );
 
 export function apiSuccessOutput({ data }) {
     return data;
