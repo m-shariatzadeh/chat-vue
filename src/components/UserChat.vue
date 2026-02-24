@@ -154,7 +154,3 @@ watch(openChatModal,async () => {
     </section>
   </div>
 </template>
-
-<style scoped>
-  @import "/src/assets/chats/style.css";
-</style>

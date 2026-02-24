@@ -2,23 +2,36 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Main from '../components/Main.vue'
 import UserChat from "../components/UserChat.vue";
 import AdminPanel from "../components/AdminPanel.vue";
+import UserLayout from "../components/layouts/UserLayout.vue";
+import AdminLayout from "../components/layouts/AdminLayout.vue";
 
 const routes = [
     {
         path: '/',
-        name: 'Main',
         component: Main
     },
     {
         path: '/user',
-        name: 'UserChat',
-        component: UserChat
+        component: UserLayout,
+        children: [
+            {
+                path: '',
+                name: 'UserChat',
+                component: UserChat
+            }
+        ]
     },
     {
         path: '/admin',
-        name: 'AdminPanel',
-        component: AdminPanel
-    },
+        component: AdminLayout,
+        children: [
+            {
+                path: '',
+                name: 'AdminPanel',
+                component: AdminPanel
+            }
+        ]
+    }
 ]
 
 const router = createRouter({

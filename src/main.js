@@ -15,7 +15,7 @@ import {useChatStore} from "./stores/chat.js";
 
 const pinia = createPinia().use(piniaPluginPersistedstate);
 
-
+// console.log(router.currentRoute)
 createApp(App)
     .use(router)
     .use(pinia)
