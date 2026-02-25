@@ -92,8 +92,9 @@ onMounted( async () => {
 
     const channel = pusher.subscribe(`private-conversation.${user.conversation_id}`);
     channel.bind("message.sent", (payload) => {
-      chat.messages.push(payload);
-      console.log(payload)
+      if (payload.sender_id !== user.visitor_id){
+        chat.messages.push(payload);
+      }
     });
   }
 })

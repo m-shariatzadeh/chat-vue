@@ -1,17 +1,18 @@
 import {createApp, nextTick} from 'vue'
-import { createPinia } from 'pinia'
+import {createPinia} from 'pinia'
 import Pusher from 'pusher-js'
+import Echo from 'laravel-echo';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import App from './App.vue'
 import router from "./router";
-import { api } from "./api.js";
+import {api} from "./api.js";
 
 import "./assets/chats/fontawesome.js";
 import './style.css'
 import 'animate.css'
 import '@tailwindplus/elements'
-import { useUserStore } from "./stores/user.js";
-import { useAdminStore } from "./stores/admin.js";
+import {useUserStore} from "./stores/user.js";
+import {useAdminStore} from "./stores/admin.js";
 
 const pinia = createPinia().use(piniaPluginPersistedstate);
 
