@@ -102,7 +102,9 @@ onMounted( async () => {
 watch([openChatModal, messages],async () => {
   if (messages.value.length > 0) {
     const last_message = messages.value[messages.value.length - 1];
-    messageId.value = last_message.id;
+    if (messageId.value === last_message.id){
+      messageId.value = last_message.id;
+    }
   }
 
   await nextTick();
@@ -146,7 +148,7 @@ watch([openChatModal, messages],async () => {
         <button @click="disableEditMode" class="float-right mr-3">
           <i class="fa-solid fa-xmark"></i>
         </button>
-        <div v-text="oldText" class="cursor-pointer" @click="scrollToMessage"></div>
+        <div v-text="oldText" class="cursor-pointer text-center" @click="scrollToMessage"></div>
       </div>
       <!-- Chat Input -->
       <div class="bg-white border-t p-4" v-if="chatExist">

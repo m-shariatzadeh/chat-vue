@@ -1,48 +1,52 @@
 <script setup>
 
+import {useChatStore} from "../../stores/chat.js";
+import {storeToRefs} from "pinia";
+import {watch} from "vue";
+
 const props = defineProps({
   message: Object|Array,
   // doUpdate: Boolean,
 })
-//
-// const chat = useChatStore();
-// const { text, oldText, editMode, messageId, doUpdate, messages} = storeToRefs(chat);
-// const disableEditMode = chat.disableEditMode;
-//
-// function destroy() {
-//   console.log(props.message.id)
-// }
-//
-// function enableEditMode() {
-//   editMode.value = true;
-//   messageId.value = props.message.id;
-//   const messageText = messages.value.find(message => message.id === props.message.id).body;
-//   // console.log(messageText);
-//   text.value = messageText;
-//
-//   // old text limit to show
-//   oldText.value = messageText.length > 20
-//       ? messageText.slice(0, 20) + '...'
-//       : messageText;
-// }
-//
-// function updateMessage() {
-//   if (text.value.toString().trim() === ''){
-//     return;
-//   }
-//
-//   messages.value.find(message => message.id === messageId.value).text = text.value;
-//   disableEditMode();
-//   doUpdate.value = false;
-// }
-//
-// watch(doUpdate, () => {
-//   updateMessage();
-// });
-//
-// function reply(){
-//   console.log(props.message.id)
-// }
+
+const chat = useChatStore();
+const { text, oldText, editMode, messageId, doUpdate, messages} = storeToRefs(chat);
+const disableEditMode = chat.disableEditMode;
+
+function destroy() {
+  console.log(props.message.id)
+}
+
+function enableEditMode() {
+  editMode.value = true;
+  messageId.value = props.message.id;
+  const messageText = messages.value.find(message => message.id === props.message.id).body;
+  // console.log(messageText);
+  text.value = messageText;
+
+  // old text limit to show
+  oldText.value = messageText.length > 20
+      ? messageText.slice(0, 20) + '...'
+      : messageText;
+}
+
+function updateMessage() {
+  if (text.value.toString().trim() === ''){
+    return;
+  }
+
+  messages.value.find(message => message.id === messageId.value).text = text.value;
+  disableEditMode();
+  doUpdate.value = false;
+}
+
+watch(doUpdate, () => {
+  updateMessage();
+});
+
+function reply(){
+  console.log(props.message.id)
+}
 </script>
 <template>
     <div class="max-w-4xl mx-auto space-y-4">
