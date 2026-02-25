@@ -13,8 +13,12 @@ const chat = useChatStore();
 const { text, oldText, editMode, messageId, doUpdate, messages} = storeToRefs(chat);
 const disableEditMode = chat.disableEditMode;
 
-function destroy() {
-  console.log(props.message.id)
+async function destroy(msgId) {
+  try {
+    await api.delete(`api/messages/${msgId}/delete`);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function enableEditMode() {
@@ -98,10 +102,10 @@ function reply(){
                 پاسخ
                 <i class="fa-solid fa-reply text-xs"></i>
               </a>
-              <a @click="destroy" class="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-none" >
+              <button @click="destroy(message.id)" class="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-none" >
                 حذف
                 <i class="fa-solid fa-trash text-xs"></i>
-              </a>
+              </button>
             </div>
           </el-menu>
         </el-dropdown>

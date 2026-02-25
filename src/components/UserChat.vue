@@ -85,6 +85,8 @@ onMounted( async () => {
     messageId.value = last_message.id;
   }
 
+  scrollToMessage(event, 'endOfMessages')
+
   // listen to send messages
   if (user.conversation_id){
     chatExist.value = true;
@@ -95,6 +97,12 @@ onMounted( async () => {
       if (payload.sender_id !== user.visitor_id){
         chat.messages.push(payload);
       }
+    });
+
+    // listen to delete messages
+    channel.bind("message.delete", (payload) => {
+      console.log(payload)
+      messages.value = messages.value.filter(message => message.id !== payload.id);
     });
   }
 })

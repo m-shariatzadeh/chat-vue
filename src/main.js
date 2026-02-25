@@ -29,6 +29,8 @@ const admin = useAdminStore();
 
 let headers = '';
 let url = '';
+
+Pusher.logToConsole = true;
 if (user.session_token || admin.token){
     if (admin.isAuth){
         api.defaults.headers.common['Authorization'] = 'Bearer ' + admin.token;
