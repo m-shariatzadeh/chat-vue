@@ -28,18 +28,23 @@ const user = useUserStore();
 const admin = useAdminStore();
 
 let headers = '';
+let url = '';
 if (user.session_token || admin.token){
     if (admin.isAuth){
+        api.defaults.headers.common['Authorization'] = 'Bearer ' + admin.token;
         headers = {
             "Authorization": 'Bearer ' + admin.token,
-            "X-Session-Token": user.session_token,
             "Accept": "application/json",
         }
+
+        url = "api/broadcasting/auth-admin";
     }else{
         headers = {
             "X-Session-Token": user.session_token,
             "Accept": "application/json",
         }
+
+        url = "api/broadcasting/auth";
     }
     // console.log(user.session_token)
     // console.log(user.session_token ? 'user: '+ user.session_token : 'admin: '+ admin.token)
@@ -50,7 +55,7 @@ if (user.session_token || admin.token){
         wsPort: import.meta.env.VITE_PUSHER_SOCKET_PORT,
         forceTLS: false,
         enabledTransports: ["ws"],
-        authEndpoint: import.meta.env.VITE_API_URL + "api/broadcasting/auth",
+        authEndpoint: import.meta.env.VITE_API_URL + url,
         auth: {headers: headers},
     });
     pusher.connection.bind("connected", () => {
