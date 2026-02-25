@@ -99,9 +99,16 @@ onMounted( async () => {
   }
 })
 
-watch(openChatModal,async () => {
+watch([openChatModal, messages],async () => {
+  if (messages.value.length > 0) {
+    const last_message = messages.value[messages.value.length - 1];
+    messageId.value = last_message.id;
+  }
+
   await nextTick();
   scrollToMessage('endOfMessages');
+},{
+  deep: true
 })
 
 </script>
