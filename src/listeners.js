@@ -33,7 +33,7 @@ export function bindAdminMessageListeners() {
     const admin = useAdminStore();
     const chat = useChatStore();
 
-    const channel = pusher.subscribe(`private-conversation.${admin.conversationId.value}`);
+    const channel = pusher.subscribe(`private-conversation.${admin.conversationId}`);
 
     // message sent
     channel.bind("message.sent", (payload) => {

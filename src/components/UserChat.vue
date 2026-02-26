@@ -20,6 +20,7 @@ const getMessages = chat.getMessages;
 const sendMessage = chat.sendMessage;
 const updateMessage = chat.updateMessage;
 const scrollToMessage = chat.scrollToMessage;
+const updateMessageId = chat.updateMessageId;
 // localStorage.clear()
 // console.log(user.conversation_id)
 
@@ -27,11 +28,7 @@ onMounted( async () => {
   await user.create();
 
   // get last message id
-  if (messages.value.length > 0) {
-    const last_message = messages.value[messages.value.length - 1];
-    messageId.value = last_message.id;
-  }
-
+  updateMessageId();
   scrollToMessage(event, 'endOfMessages')
 
   if (user.conversation_id){
@@ -43,15 +40,10 @@ onMounted( async () => {
 })
 
 watch([openChatModal, messages],async () => {
-  if (messages.value.length > 0) {
-    const last_message = messages.value[messages.value.length - 1];
-    if (messageId.value === last_message.id){
-      messageId.value = last_message.id;
-    }
-  }
+  updateMessageId();
 
   await nextTick();
-  scrollToMessage('endOfMessages');
+  scrollToMessage(event, 'endOfMessages');
 },{
   deep: true
 })

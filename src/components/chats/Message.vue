@@ -1,49 +1,17 @@
 <script setup>
 
-import {useChatStore} from "../../stores/chat.js";
-import {storeToRefs} from "pinia";
-import {onMounted, reactive, watch} from "vue";
+import { useChatStore } from "../../stores/chat.js";
+import { storeToRefs } from "pinia";
 
 const props = defineProps({
   message: Object|Array,
-  doUpdate: Boolean,
 })
 
 const chat = useChatStore();
-const { text, oldText, editMode, replyMode, messageId, doUpdate, messages} = storeToRefs(chat);
-const disableEditMode = chat.disableEditMode;
-
-async function destroy(msgId) {
-  try {
-    await api.delete(`api/messages/${msgId}/delete`);
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-function enableEditMode() {
-  editMode.value = true;
-  messageId.value = props.message.id;
-  const messageText = messages.value.find(message => message.id === props.message.id).body;
-  // console.log(messageText);
-  text.value = messageText;
-
-  // old text limit to show
-  oldText.value = messageText.length > 20
-      ? messageText.slice(0, 20) + '...'
-      : messageText;
-}
-
-function enableReplyMode(){
-  messageId.value = props.message.id;
-  replyMode.value = true;
-  const messageText = messages.value.find(message => message.id === props.message.id).body;
-
-  // old text limit to show
-  oldText.value = messageText.length > 20
-      ? messageText.slice(0, 20) + '...'
-      : messageText;
-}
+const { messages } = storeToRefs(chat);
+const enableEditMode = chat.enableEditMode;
+const enableReplyMode = chat.enableReplyMode;
+const destroy = chat.destroy;
 </script>
 <template>
     <div class="max-w-4xl mx-auto space-y-4">
@@ -77,7 +45,7 @@ function enableReplyMode(){
           </button>
           <el-menu anchor="bottom end" popover class="m-0 w-56 origin-top-right rounded-md bg-white p-0 shadow-lg outline outline-1 outline-black/5 transition [--anchor-gap:theme(spacing.2)] [transition-behavior:allow-discrete] data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in w-fit">
             <div class="py-1">
-              <button @click="enableReplyMode" class="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-none" >
+              <button @click="enableReplyMode(message.id)" class="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-none" >
                 پاسخ
                 <i class="fa-solid fa-reply text-xs"></i>
               </button>
@@ -96,11 +64,11 @@ function enableReplyMode(){
 
           <el-menu anchor="bottom end" popover class="m-0 w-56 origin-top-right rounded-md bg-white p-0 shadow-lg outline outline-1 outline-black/5 transition [--anchor-gap:theme(spacing.2)] [transition-behavior:allow-discrete] data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in w-fit">
             <div class="py-1">
-              <button @click="enableEditMode" class="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-none">
+              <button @click="enableEditMode(message.id)" class="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-none">
                 ویرایش
                 <i class="fa-solid fa-pen text-xs"></i>
               </button>
-              <button @click="enableReplyMode" class="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-none">
+              <button @click="enableReplyMode(message.id)" class="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-none">
                 پاسخ
                 <i class="fa-solid fa-reply text-xs"></i>
               </button>

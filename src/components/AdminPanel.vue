@@ -9,7 +9,7 @@ import { bindAdminMessageListeners } from "../listeners.js";
 import ConversationList from "./admin/ConversationList.vue";
 
 const admin = useAdminStore();
-const { conversationId } = storeToRefs(admin);
+const { conversationId, isAuth } = storeToRefs(admin);
 const conversations = ref();
 const chatExist = ref(false);
 const chat = useChatStore();
@@ -20,6 +20,7 @@ const getMessages = chat.getMessages;
 const sendMessage = chat.sendMessage;
 const updateMessage = chat.updateMessage;
 const scrollToMessage = chat.scrollToMessage;
+const updateMessageId = chat.updateMessageId;
 
 function showConversation(oldConversationId) {
   if (oldConversationId){
@@ -28,7 +29,7 @@ function showConversation(oldConversationId) {
 
   chatExist.value = true;
 
-  if (conversationId){
+  if (conversationId.value){
     bindAdminMessageListeners();
   }
 }
@@ -50,30 +51,26 @@ onMounted( () => {
   }
 })
 
+watch(isAuth, () => {
+  api.defaults.headers.common['Authorization'] = 'Bearer ' + admin.token;
+  getConversations();
+})
+
 watch(conversationId,async (newValue, oldValue) => {
   showConversation(oldValue);
   await getMessages(conversationId.value);
   await nextTick();
 
-  if (messages.value.length > 0) {
-    const last_message = messages.value[messages.value.length - 1];
-    messageId.value = last_message.id;
-  }
-
+  updateMessageId();
   scrollToMessage(event,'endOfMessages');
 })
 
 watch(() => messages,async () => {
   // get last message id
-  if (messages.value.length > 0) {
-    const last_message = messages.value[messages.value.length - 1];
-    if (messageId.value === last_message.id){
-      messageId.value = last_message.id;
-    }
-  }
+  updateMessageId();
 
-  // await nextTick();
-  // scrollToMessage();
+  await nextTick();
+  scrollToMessage(event, 'endOfMessages');
 },{
   deep: true
 })

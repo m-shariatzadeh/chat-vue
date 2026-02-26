@@ -1,6 +1,7 @@
 <script setup>
-import { ref } from "vue";
+import {nextTick, ref} from "vue";
 import { useAdminStore } from "../../stores/admin.js";
+import {storeToRefs} from "pinia";
 
 const admin = useAdminStore();
 const email = ref('');

@@ -13,7 +13,6 @@ export const useChatStore = defineStore('chat',() => {
     const oldText = ref('');
     const editMode = ref(false);
     const replyMode = ref(false);
-    const doUpdate = ref(false);
     const messageId = ref();
     const messages = ref([]);
     const loading = ref(false);
@@ -96,6 +95,14 @@ export const useChatStore = defineStore('chat',() => {
         }
     }
 
+    async function destroy(msgId) {
+        try {
+            await api.delete(`${base_api_url.value}/messages/${msgId}/delete`);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     function scrollToMessage(e, elementId = null) {
         if (elementId != null){
             const element = document.getElementById(elementId);
@@ -122,10 +129,41 @@ export const useChatStore = defineStore('chat',() => {
         }
     }
 
+    function updateMessageId() {
+        if (messages.value.length > 0) {
+            const last_message = messages.value[messages.value.length - 1];
+            messageId.value = last_message.id;
+        }
+    }
+
+    function enableEditMode(msgId) {
+        editMode.value = true;
+        messageId.value = msgId;
+        const messageText = messages.value.find(message => message.id === msgId).body;
+        // console.log(messageText);
+        text.value = messageText;
+
+        // old text limit to show
+        oldText.value = messageText.length > 20
+            ? messageText.slice(0, 20) + '...'
+            : messageText;
+    }
+
     function disableEditMode() {
         editMode.value = false;
         text.value = '';
         oldText.value = '';
+    }
+
+    function enableReplyMode(msgId) {
+        messageId.value = msgId;
+        replyMode.value = true;
+        const messageText = messages.value.find(message => message.id === msgId).body;
+
+        // old text limit to show
+        oldText.value = messageText.length > 20
+            ? messageText.slice(0, 20) + '...'
+            : messageText;
     }
 
     function disableReplyMode() {
@@ -141,13 +179,16 @@ export const useChatStore = defineStore('chat',() => {
         replyMode,
         messages,
         messageId,
-        doUpdate,
         loading,
+        enableEditMode,
         disableEditMode,
+        enableReplyMode,
         disableReplyMode,
         getMessages,
         sendMessage,
         updateMessage,
+        destroy,
         scrollToMessage,
+        updateMessageId,
     }
 })
