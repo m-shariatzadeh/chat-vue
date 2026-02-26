@@ -8,8 +8,9 @@ export const useChatStore = defineStore('chat',() => {
     const text = ref('');
     const oldText = ref('');
     const editMode = ref(false);
+    const replyMode = ref(false);
     const doUpdate = ref(false);
-    const messageId = ref(); // used for edit and reply
+    const messageId = ref();
     const messages = ref([]);
 
     // ------------------------------------ //
@@ -25,13 +26,21 @@ export const useChatStore = defineStore('chat',() => {
         oldText.value = '';
     }
 
+    function disableReplyMode() {
+        replyMode.value = false;
+        text.value = '';
+        oldText.value = '';
+    }
+
     return {
         text,
         oldText,
         editMode,
+        replyMode,
         messages,
         messageId,
         doUpdate,
         disableEditMode,
+        disableReplyMode
     }
 })

@@ -13,8 +13,9 @@ const loading = ref(false);
 const openChatModal = ref(false);
 const chatExist = ref(false);
 const chat = useChatStore();
-const { text, oldText, editMode, messageId, doUpdate, messages} = storeToRefs(chat);
+const { text, oldText, editMode, replyMode, messageId, doUpdate, messages} = storeToRefs(chat);
 const disableEditMode = chat.disableEditMode;
+const disableReplyMode = chat.disableReplyMode;
 // localStorage.clear()
 // console.log(user.conversation_id)
 
@@ -27,13 +28,15 @@ async function sendMessage() {
   try {
     const data = {
       sender_id: user.visitor_id,
-      body: text.value
+      body: text.value,
+      reply_to: replyMode.value ? messageId.value ?? null : null
     }
     const res = await api.post(`/api/conversations/${user.conversation_id}/messages`,data);
     messages.value.push(res.data);
     messageId.value = res.data.id;
     text.value = ''
     loading.value = false;
+    replyMode.value = false;
     await nextTick();
     scrollToMessage();
   } catch (error) {
@@ -183,6 +186,15 @@ watch([openChatModal, messages],async () => {
         </button>
         <div v-text="oldText" class="cursor-pointer text-center" @click="scrollToMessage"></div>
       </div>
+
+      <!-- Reply to -->
+      <div class="bg-slate-200 py-2" v-if="replyMode">
+        <button @click="disableReplyMode" class="float-right mr-3">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div v-text="oldText" class="cursor-pointer text-center" @click="scrollToMessage"></div>
+      </div>
+
       <!-- Chat Input -->
       <div class="bg-white border-t p-4" v-if="chatExist">
         <div class="max-w-4xl mx-auto flex items-center space-x-4">
