@@ -34,20 +34,6 @@ function enableEditMode() {
       : messageText;
 }
 
-function updateMessage() {
-  if (text.value.toString().trim() === ''){
-    return;
-  }
-
-  messages.value.find(message => message.id === messageId.value).text = text.value;
-  disableEditMode();
-  doUpdate.value = false;
-}
-
-watch(doUpdate, () => {
-  updateMessage();
-});
-
 function reply(){
   console.log(props.message.id)
 }
