@@ -1,99 +1,27 @@
 <script setup>
 
-import {nextTick, onMounted, ref, watch} from "vue";
+import { nextTick, onMounted, ref, watch} from "vue";
 import Header from "./chats/Header.vue";
 import Message from "./chats/Message.vue";
 import StartChat from "./chats/StartChat.vue";
 import { storeToRefs } from "pinia";
 import { useChatStore } from "../stores/chat.js";
 import { useUserStore } from "../stores/user.js";
+import { bindUserMessageListeners } from "../listeners.js";
 
 const user = useUserStore();
-const loading = ref(false);
 const openChatModal = ref(false);
 const chatExist = ref(false);
 const chat = useChatStore();
-const { text, oldText, editMode, replyMode, messageId, doUpdate, messages} = storeToRefs(chat);
+const { text, oldText, editMode, replyMode, messageId, messages, loading} = storeToRefs(chat);
 const disableEditMode = chat.disableEditMode;
 const disableReplyMode = chat.disableReplyMode;
+const getMessages = chat.getMessages;
+const sendMessage = chat.sendMessage;
+const updateMessage = chat.updateMessage;
+const scrollToMessage = chat.scrollToMessage;
 // localStorage.clear()
 // console.log(user.conversation_id)
-
-async function sendMessage() {
-  if (text.value.toString().trim() === ''){
-    return;
-  }
-
-  loading.value = true;
-  try {
-    const data = {
-      sender_id: user.visitor_id,
-      body: text.value,
-      reply_to: replyMode.value ? messageId.value ?? null : null
-    }
-    const res = await api.post(`/api/conversations/${user.conversation_id}/messages`,data);
-    messages.value.push(res.data);
-    messageId.value = res.data.id;
-    text.value = ''
-    loading.value = false;
-    replyMode.value = false;
-    await nextTick();
-    scrollToMessage();
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-async function updateMessage() {
-  if (text.value.toString().trim() === '') return;
-
-  loading.value = true;
-
-  try {
-    const data = { body: text.value };
-    const res = await api.patch(`api/messages/${messageId.value}/update`, data);
-    messages.value.find(message => message.id === res.data.id).body = res.data.body;
-    loading.value = false;
-    disableEditMode();
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-async function getMessages(){
-  try {
-    const res = await api.get(`api/conversations/${user.conversation_id}/messages`);
-    messages.value = res.data;
-    // console.log(res.data)
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-function scrollToMessage(e, elementId = null) {
-  if (elementId != null){
-    const element = document.getElementById(elementId);
-    element.scrollIntoView({ behavior: "smooth" });
-    element.classList.add('bg-lime-100')
-    setTimeout(() => {
-      element.classList.remove('bg-lime-100')
-    }, 1000)
-  }else{
-    if (messageId.value === undefined) {
-      return;
-    }
-    const element = document.getElementById(`message_${messageId.value}`);
-    // remove animation
-    element.classList.remove('animate__animated');
-    element.classList.remove('animate__fadeInRight');
-
-    element.scrollIntoView({ behavior: "smooth" });
-    element.classList.add('bg-lime-100')
-    setTimeout(() => {
-      element.classList.remove('bg-lime-100')
-    }, 1000)
-  }
-}
 
 onMounted( async () => {
   await user.create();
@@ -108,30 +36,9 @@ onMounted( async () => {
 
   if (user.conversation_id){
     chatExist.value = true;
-    await getMessages();
+    await getMessages(user.conversation_id);
 
-    const channel = pusher.subscribe(`private-conversation.${user.conversation_id}`);
-
-    // listen to send messages
-    channel.bind("message.sent", (payload) => {
-      if (payload.sender_id !== user.visitor_id){
-        chat.messages.push(payload);
-      }
-    });
-
-    // listen to update messages
-    channel.bind("message.update", (payload) => {
-      // console.log(payload)
-      if (payload.sender_id !== user.visitor_id){
-        messages.value.find(message => message.id === payload.id).body = payload.body;
-      }
-    });
-
-    // listen to delete messages
-    channel.bind("message.delete", (payload) => {
-      // console.log(payload)
-      messages.value = messages.value.filter(message => message.id !== payload.id);
-    });
+    bindUserMessageListeners();
   }
 })
 
@@ -212,7 +119,7 @@ watch([openChatModal, messages],async () => {
             </button>
           </div>
           <div v-else>
-            <button @click="sendMessage" class="p-2 text-white bg-green-600 rounded-full size-11 hover:bg-green-700 transition disabled:bg-green-500" :disabled="loading">
+            <button @click="sendMessage(user.conversation_id)" class="p-2 text-white bg-green-600 rounded-full size-11 hover:bg-green-700 transition disabled:bg-green-500" :disabled="loading">
               <i class="fa-solid fa-paper-plane" v-if="!loading"></i>
               <svg v-else aria-hidden="true" role="status" class="inline w-4 h-4 text-white animate-spin" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="#E5E7EB"/>

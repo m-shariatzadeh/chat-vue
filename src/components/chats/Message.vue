@@ -53,7 +53,7 @@ function enableReplyMode(){
         <div>
           <div class="bg-white rounded-lg rounded-tl-none p-3 shadow-md max-w-md">
             <!-- Reply Section -->
-            <div v-if="message.reply_to & messages.find(m => m.id === message.reply_to) !== undefined" class="mb-2 border-l-4 border-blue-500 bg-blue-50 rounded-md p-2">
+            <div v-if="message.reply_to !== null & messages.find(m => m.id === message.reply_to) !== undefined" class="mb-2 border-l-4 border-blue-500 bg-blue-50 rounded-md p-2">
               <p class="text-xs text-blue-600 font-semibold">{{ messages.find(m => m.id === message.reply_to).body }}</p>
             </div>
             <!-- Sender -->
@@ -116,7 +116,7 @@ function enableReplyMode(){
           <!-- Main Message -->
           <div class="bg-green-600 text-white rounded-lg rounded-tr-none p-3 shadow-md max-w-md">
             <!-- Reply Section -->
-            <div v-if="message.reply_to & messages.find(m => m.id === message.reply_to) !== undefined" class="mb-2 border-l-4 border-blue-500 bg-blue-50 rounded-md p-2 max-w-md">
+            <div v-if="message.reply_to !== null & messages.find(m => m.id === message.reply_to) !== undefined" class="mb-2 border-l-4 border-blue-500 bg-blue-50 rounded-md p-2 max-w-md">
               <p class="text-xs text-blue-600 font-semibold">{{ messages.find(m => m.id === message.reply_to).body }}</p>
             </div>
             <span class="text-slate-200 flex justify-end text-sm">{{ message.user }}</span>

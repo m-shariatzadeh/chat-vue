@@ -8,16 +8,19 @@ export const useAdminStore = defineStore('admin', () => {
     const name = ref();
     const token = ref();
     const isAuth = ref();
+    const conversationId = ref();
 
     return {
         id,
         name,
         email,
         token,
-        isAuth
+        isAuth,
+        conversationId
     }
 },{
     persist: {
         storage: sessionStorage,
+        omit: ['conversationId'], // ignore it
     },
 });

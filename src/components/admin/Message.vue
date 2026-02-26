@@ -62,12 +62,12 @@ function enableReplyMode(){
 <template>
     <div class="max-w-4xl mx-auto space-y-4">
       <!-- Receiver Message -->
-      <div class="flex items-start space-x-2 message_sec animate__animated animate__fadeInLeft" v-if="message.sender_type === 'agent'" :id="`message_${message.id}`">
+      <div class="flex items-start space-x-2 message_sec animate__animated animate__fadeInLeft" v-if="message.sender_type === 'visitor'" :id="`message_${message.id}`">
         <img src="https://placehold.co/600x400/000000/fff" alt="Abhiraj" class="w-8 h-8 rounded-full object-cover"/>
         <div>
           <div class="bg-white rounded-lg rounded-tl-none p-3 shadow-md max-w-md">
             <!-- Reply Section -->
-            <div v-if="message.reply_to & messages.find(m => m.id === message.reply_to) !== undefined" class="mb-2 border-l-4 border-blue-500 bg-blue-50 rounded-md p-2">
+            <div v-if="message.reply_to !== null & messages.find(m => m.id === message.reply_to) !== undefined" class="mb-2 border-l-4 border-blue-500 bg-blue-50 rounded-md p-2">
               <p class="text-xs text-blue-600 font-semibold">{{ messages.find(m => m.id === message.reply_to).body }}</p>
             </div>
             <!-- Sender -->
@@ -101,7 +101,7 @@ function enableReplyMode(){
       </div>
 
       <!-- Sender Message -->
-      <div class="flex items-start justify-end space-x-2 message_sec animate__animated animate__fadeInRight" v-if="message.sender_type === 'visitor'" :id="`message_${message.id}`">
+      <div class="flex items-start justify-end space-x-2 message_sec animate__animated animate__fadeInRight" v-if="message.sender_type === 'agent'" :id="`message_${message.id}`">
         <!-- Action Button -->
         <el-dropdown class="inline-block">
           <button class="inline-flex w-full justify-center gap-x-1.5 rounded-md text-sm font-semibold text-gray-900 bg-none p-0">
@@ -130,7 +130,7 @@ function enableReplyMode(){
           <!-- Main Message -->
           <div class="bg-green-600 text-white rounded-lg rounded-tr-none p-3 shadow-md max-w-md">
             <!-- Reply Section -->
-            <div v-if="message.reply_to & messages.find(m => m.id === message.reply_to) !== undefined" class="mb-2 border-l-4 border-blue-500 bg-blue-50 rounded-md p-2 max-w-md">
+            <div v-if="message.reply_to !== null & messages.find(m => m.id === message.reply_to) !== undefined" class="mb-2 border-l-4 border-blue-500 bg-blue-50 rounded-md p-2 max-w-md">
               <p class="text-xs text-blue-600 font-semibold">{{ messages.find(m => m.id === message.reply_to).body }}</p>
             </div>
             <span class="text-slate-200 flex justify-end text-sm">{{ message.user }}</span>

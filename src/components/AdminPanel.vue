@@ -1,19 +1,25 @@
 <script setup>
+import { nextTick, onMounted, ref, watch } from "vue";
+import { storeToRefs } from "pinia";
 import LoginForm from "./admin/LoginForm.vue";
-import { useAdminStore } from "../stores/admin.js";
-import {nextTick, onMounted, ref, watch} from "vue";
 import Message from "./admin/Message.vue";
-import {useChatStore} from "../stores/chat.js";
-import {storeToRefs} from "pinia";
+import { useAdminStore } from "../stores/admin.js";
+import { useChatStore } from "../stores/chat.js";
+import { bindAdminMessageListeners } from "../listeners.js";
+import ConversationList from "./admin/ConversationList.vue";
 
 const admin = useAdminStore();
-const conversations = ref([]);
-const conversationId = ref();
-const loading = ref(false);
+const { conversationId } = storeToRefs(admin);
+const conversations = ref();
 const chatExist = ref(false);
 const chat = useChatStore();
-const { text, oldText, editMode, messageId, doUpdate, messages} = storeToRefs(chat);
+const { text, oldText, editMode, replyMode, messageId, messages, loading} = storeToRefs(chat);
 const disableEditMode = chat.disableEditMode;
+const disableReplyMode = chat.disableReplyMode;
+const getMessages = chat.getMessages;
+const sendMessage = chat.sendMessage;
+const updateMessage = chat.updateMessage;
+const scrollToMessage = chat.scrollToMessage;
 
 function showConversation(oldConversationId) {
   if (oldConversationId){
@@ -22,126 +28,31 @@ function showConversation(oldConversationId) {
 
   chatExist.value = true;
 
-  if (conversationId.value){
-    const channel = pusher.subscribe(`private-conversation.${conversationId.value}`);
-
-    // listen to send messages
-    channel.bind("message.sent", (payload) => {
-      // console.log(payload)
-      if (admin.id !== payload.sender_id) {
-        messages.value.push(payload);
-      }
-    });
-
-    // listen to update messages
-    channel.bind("message.update", (payload) => {
-      // console.log(payload)
-      if (admin.id !== payload.sender_id){
-        messages.value.find(message => message.id === payload.id).body = payload.body;
-      }
-    });
-
-    // listen to delete messages
-    channel.bind("message.delete", (payload) => {
-      // console.log(payload)
-      messages.value = messages.value.filter(message => message.id !== payload.id);
-    });
+  if (conversationId){
+    bindAdminMessageListeners();
   }
 }
 
-async function getMessages() {
-  try {
-    const res = await api.get(`api/admin/conversations/${conversationId.value}/messages`);
-    messages.value = res.data;
+async function getConversations() {
+  try{
+    const res = await api.get('api/admin/conversations');
+    conversations.value = res.data.data;
     // console.log(res.data)
-  } catch (error) {
-    console.error(error);
+  }catch (e){
+    console.error(e.response.data.message);
   }
 }
 
-async function sendMessage() {
-  if (text.value.toString().trim() === ''){
-    return;
-  }
-
-  loading.value = true;
-  try {
-    const data = {
-      admin_id: admin.id,
-      body: text.value
-    }
-    const res = await api.post(`/api/admin/conversations/${conversationId.value}/messages`,data);
-    messages.value.push(res.data);
-    messageId.value = res.data.id;
-    text.value = ''
-    loading.value = false;
-
-    await nextTick();
-    scrollToMessage();
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-async function updateMessage() {
-  if (text.value.toString().trim() === '') return;
-
-  loading.value = true;
-
-  try {
-    const data = { body: text.value };
-    const res = await api.patch(`api/admin/messages/${messageId.value}/update`, data);
-    messages.value.find(message => message.id === res.data.id).body = res.data.body;
-    loading.value = false;
-    disableEditMode();
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-function scrollToMessage(e, elementId = null) {
-  if (elementId != null){
-    const element = document.getElementById(elementId);
-    element.scrollIntoView({ behavior: "smooth" });
-    element.classList.add('bg-lime-100')
-    setTimeout(() => {
-      element.classList.remove('bg-lime-100')
-    }, 1000)
-  }else{
-    if (messageId.value === undefined) {
-      return;
-    }
-    const element = document.getElementById(`message_${messageId.value}`);
-    // console.log(messageId.value)
-    // remove animation
-    element.classList.remove('animate__animated');
-    element.classList.remove('animate__fadeInRight');
-
-    element.scrollIntoView({ behavior: "smooth" });
-    element.classList.add('bg-lime-100')
-    setTimeout(() => {
-      element.classList.remove('bg-lime-100')
-    }, 1000)
-  }
-}
-
-onMounted(async () => {
+onMounted( () => {
   // get Conversations
   if (admin.isAuth){
-    try{
-      const res = await api.get('api/admin/conversations');
-      conversations.value = res.data.data;
-      // console.log(res.data)
-
-    }catch (e){
-      console.error(e.response.data.message);
-    }
+    getConversations();
   }
 })
 
 watch(conversationId,async (newValue, oldValue) => {
   showConversation(oldValue);
-  await getMessages();
+  await getMessages(conversationId.value);
   await nextTick();
 
   if (messages.value.length > 0) {
@@ -175,43 +86,7 @@ watch(() => messages,async () => {
 
     <div v-else>
       <!-- Conversation List -->
-      <div class="relative overflow-x-auto float-right w-1/2">
-        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-          <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-          <tr>
-            <th scope="col" class="px-6 py-3">
-              #
-            </th>
-            <th scope="col" class="px-6 py-3">
-              عنوان
-            </th>
-            <th scope="col" class="px-6 py-3">
-              موضوع
-            </th>
-            <th scope="col" class="px-6 py-3">
-              عملیات
-            </th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="(conversation, index) in conversations" :key="conversation.id" :class="conversationId === conversation.id ? 'bg-green-500' : ''" class="border-b border-gray-200">
-            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-              {{ ++index }}
-            </th>
-            <td class="px-6 py-4">
-              {{ conversation.subject }}
-            </td>
-            <td class="px-6 py-4">
-              {{ conversation.status }}
-            </td>
-            <td class="px-6 py-4">
-              <button @click="conversationId = conversation.id" class="text-blue-800 hover:text-blue-600">مشاهده</button>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-
+      <ConversationList :conversations="conversations" :conversationId="conversationId"/>
       <!--  Chat Layout  -->
       <div class="float-left" dir="ltr">
         <section class="bg-gray-100 w-96 h-[50rem] flex flex-col">
@@ -233,6 +108,15 @@ watch(() => messages,async () => {
             </button>
             <div v-text="oldText" class="cursor-pointer text-center" @click="scrollToMessage"></div>
           </div>
+
+          <!-- Reply to -->
+          <div class="bg-slate-200 py-2" v-if="replyMode">
+            <button @click="disableReplyMode" class="float-right mr-3">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div v-text="oldText" class="cursor-pointer text-center" @click="scrollToMessage"></div>
+          </div>
+
           <!-- Chat Input -->
           <div class="bg-white border-t p-4" v-if="chatExist">
             <div class="max-w-4xl mx-auto flex items-center space-x-4">
@@ -250,7 +134,7 @@ watch(() => messages,async () => {
                 </button>
               </div>
               <div v-else>
-                <button @click="sendMessage" class="p-2 text-white bg-green-600 rounded-full size-11 hover:bg-green-700 transition disabled:bg-green-500" :disabled="loading">
+                <button @click="sendMessage(conversationId)" class="p-2 text-white bg-green-600 rounded-full size-11 hover:bg-green-700 transition disabled:bg-green-500" :disabled="loading">
                   <i class="fa-solid fa-paper-plane" v-if="!loading"></i>
                   <svg v-else aria-hidden="true" role="status" class="inline w-4 h-4 text-white animate-spin" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="#E5E7EB"/>
@@ -262,7 +146,6 @@ watch(() => messages,async () => {
           </div>
         </section>
       </div>
-
     </div>
   </div>
 </template>
